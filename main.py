@@ -13,6 +13,8 @@ from threading import Timer
 import multiprocessing as mp
 from pathlib import Path
 from Malicious_app.classifier import do_classify
+from celery import current_task
+from celery import app
 
 FIRST_N_PKTS = 8
 FIRST_N_BYTES = 80
@@ -150,10 +152,11 @@ def classify_pkt(flow, key):
     dealt_flow = pkt2nparr(flow)
     flow2tensor = torch.tensor(dealt_flow, dtype=torch.float)
 
-    output = do_classify.apply_async(args=[flow2tensor],serializer = 'myjson')
+    do_classify.apply_async(args=[flow2tensor],serializer = 'myjson',task_id = 'analysis_task')
+    result = do_classify.AsyncResult('analysis_task')
+    output = result.get()
+    #print(output)
     #output = PKT_CLASSIFIER(flow2tensor)
-    #print("---------MAIN OUTPUT BELOW-------------",output)
-    #print("---------MAIN OUTPUT IS ?-------------",type(output))
     _, predicted = torch.max(output, 1)
     
     print(f"\npredicted: {predicted}\n")

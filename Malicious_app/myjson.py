@@ -5,23 +5,22 @@ import numpy as np
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
         if torch.is_tensor(obj):
-            #print("--------ENCODE SUCCESS----------")
+            print("--------ENCODE SUCCESS----------")
             return {
-                    'type':'__Tensor__',
-                    'data': obj
+                    '__type__':'__Tensor__',
+                    'data': obj.tolist()
             }
         else:
             print("-------ENCODE FAIL--------------")
-            #obj_replace = obj
-            #return obj_replace
             return json.JSONEncoder.default(self, obj)
 
 def my_decoder(obj):
-    if torch.tensor(obj):
-        print("--------DECODE SUCCESS----------")
-        return obj
+    if '__type__' in obj:
+        if obj['__type__'] == '__Tensor__': 
+            print("--------DECODE SUCCESS----------")
+            return torch.FloatTensor(obj['data'])
     print("-------DECODE FAIL---------------")
-    return obj
+    return obj #If is null, return as well
 
 # Encoder function      
 def my_dumps(data1):

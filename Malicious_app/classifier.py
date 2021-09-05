@@ -2,6 +2,7 @@ import torch
 import numpy
 from torch import nn
 from Malicious_app import app
+from celery import current_task
 
 # n_pkts = 8        # first n_pkts packets of the flow
 # n_bytes = 80      # first n_bytes of the packet
@@ -47,9 +48,7 @@ def do_classify(ft):
     PKT_CLASSIFIER.eval() #set for batchnormalization
 
     print("*************DO CLASSIFYING********************")
-    print("Flow2tensor type = ", type(ft))
     output = PKT_CLASSIFIER(ft)
-    print("Output type = ", type(output))
 
     return output
 
